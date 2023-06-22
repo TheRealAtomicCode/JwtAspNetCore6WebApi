@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,6 +14,7 @@ namespace JWTWebApi.Controllers
     {
         public static User user = new User();
 
+        
         [HttpPost("register")]
         public async Task<ActionResult<User>>  Register(UserDto request)
         {
@@ -25,7 +27,9 @@ namespace JWTWebApi.Controllers
             return Ok(user);
         }
 
+       
         [HttpPost("login")]
+
         public async Task<ActionResult<string>> Login(UserDto request) 
         { 
             if(user.UserName != request.UserName)
@@ -46,8 +50,8 @@ namespace JWTWebApi.Controllers
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.UserName)
-                // new Claim("UserTypeId", user.UserTypeId.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Role, "Admin"),
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes("secre32dsaASD342IUIIYI&67iy&^YIU^*&Y7o8y689&*(^&&%&^$&^r467$^%TyTHJG<JgjgjkgKTYUIT*&^*O&6yi*&O&*yi*&(*YUIyT&^Y^tryu5rty54TR%^TYT^%*&u3DSdsft"));
@@ -64,6 +68,18 @@ namespace JWTWebApi.Controllers
 
             return jwt;
 
+        }
+
+        [HttpGet("auth-requires"), Authorize]
+        public async Task<ActionResult<string>> AuthRequired()
+        {
+            return Ok("You are authenticated");
+        }
+
+        [HttpGet("admins-only"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult<string>> AdminsOnly()
+        {
+            return Ok("You are an Admin");
         }
 
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
