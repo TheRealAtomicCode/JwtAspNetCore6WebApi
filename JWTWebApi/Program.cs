@@ -23,6 +23,8 @@ builder.Services.AddSwaggerGen(options =>
 
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
+
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
